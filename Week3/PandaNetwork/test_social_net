@@ -1,0 +1,3 @@
+import unittest
+from social_net_for_pandas import Panda
+from social_net_for_pandas import WrongEmail
