@@ -1,23 +1,29 @@
 class Fraction:
 
     def __init__(self, numerator, denominator):
-        self.numerator = numerator
-        self.denominator = denominator
+        self.__numerator = numerator
+        self.__denominator = denominator
+
+    def numerator(self):
+        return self.__numerator
+
+    def denominator(self):
+        return self.__denominator
 
     def simplify(self):
-        for num in range(1, min(abs(self.numerator), abs(self.denominator)) + 1):
-            if self.denominator % num == 0 and self.numerator % num == 0:
-                self.denominator //= num
-                self.numerator //= num
+        for num in range(1, min(abs(self.__numerator), abs(self.__denominator)) + 1):
+            if self.__denominator % num == 0 and self.__numerator % num == 0:
+                self.__denominator //= num
+                self.__numerator //= num
 
 
 
     def __str__(self):
         self.simplify()
-        if self.denominator == 1:
-            return "{}".format(self.numerator)
+        if self.__denominator == 1:
+            return "{}".format(self.__numerator)
         else:
-            return "{} / {}".format(self.numerator, self.denominator)
+            return "{} / {}".format(self.__numerator, self.__denominator)
 
 
 
@@ -25,22 +31,22 @@ class Fraction:
         return self.__str__()
 
     def __add__(self, other):
-        numerator = self.numerator * other.denominator + other.numerator * self.denominator
-        denominator = self.denominator * other.denominator
+        numerator = self.__numerator * other.__denominator + other.__numerator * self.__denominator
+        denominator = self.__denominator * other.__denominator
         num = Fraction(numerator, denominator)
         num.simplify()
         return num
 
     def __sub__(self, other):
-        numerator = self.numerator * other.denominator - other.numerator * self.denominator
-        denominator = self.denominator * other.denominator
+        numerator = self.__numerator * other.__denominator - other.__numerator * self.__denominator
+        denominator = self.__denominator * other.__denominator
         num = Fraction(numerator, denominator)
         num.simplify()
         return num
 
     def __mul__(self, other):
-        numerator = self.numerator * other.numerator
-        denominator = self.denominator * other.denominator
+        numerator = self.__numerator * other.__numerator
+        denominator = self.__denominator * other.__denominator
         num = Fraction(numerator, denominator)
         num.simplify()
         return num
@@ -48,9 +54,9 @@ class Fraction:
     def __eq__(self, other):
         self.simplify()
         other.simplify()
-        if self.numerator != 0:
+        if self.__numerator != 0:
             return self.__str__() == other.__str__()
-        elif self.numerator == other.numerator:
+        elif self.__numerator == other.__numerator:
             return True
         else:
             return False

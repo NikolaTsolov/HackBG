@@ -11,8 +11,8 @@ class TestFraction(unittest.TestCase):
 
     def test_init(self):
         self.assertTrue(isinstance(self.num1, Fraction))
-        self.assertEqual(self.num1.numerator, 1)
-        self.assertEqual(self.num1.denominator, 2)
+        self.assertEqual(self.num1.numerator(), 1)
+        self.assertEqual(self.num1.denominator(), 2)
 
     def test_simplify(self):
         self.num3.simplify()
