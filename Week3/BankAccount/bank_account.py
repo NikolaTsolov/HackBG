@@ -1,48 +1,61 @@
 class BankAccount:
     def __init__(self, name, money, currency):
-        self.name = name
-        self.money = money
-        self.currency = currency
-        self.history_list = ["Account was created"]
+        if money < 0:
+            raise ValueError("Your have to start with a positive amoun of money")
+
+        self.__name = name
+        self.__money = money
+        self.__currency = currency
+        self.__history = []
+        self.__add_to_history("Account was created")
+
+    def __add_to_history(self, event):
+        self.__history.append(event)
+
+    def holder(self):
+        return self.__name
+
+    def currency(self):
+        return self.__currency
 
     def deposit(self, money):
         if money < 0:
             raise ValueError
-        self.money += money
-        self.history_list.append("Deposited {}$".format(self.money))
+        self.__money += money
+        self.__add_to_history("Deposited {}{}".format(money, self.__currency))
 
     def balance(self):
-        self.history_list.append("Balance check -> {}$".format(self.money))
-        return self.money
+        self.__add_to_history("Balance check -> {}{}".format(self.__money, self.__currency))
+        return self.__money
 
     def withdraw(self, amount):
-        if self.money - amount >= 0:
-            self.money -= amount
-            self.history_list.append("{}$ was withdrawed".format(amount))
+        if self.__money - amount >= 0:
+            self.__money -= amount
+            self.__add_to_history("{}$ was withdrawed".format(amount))
             return True
         else:
-            self.history_list.append("Withdraw for {}$ failed.".format(amount))
+            self.__add_to_history("Withdraw for {}$ failed.".format(amount))
             return False
 
     def __str__(self):
-        return "Bank account for {} with balance of {}{}".format(self.name, self.money, self.currency)
+        return "Bank account for {} with balance of {}{}".format(self.__name, self.__money, self.__currency)
 
     def __int__(self):
-        self.history_list.append("__int__ check -> {}$".format(self.money))
-        return self.money
+        self.__add_to_history("__int__ check -> {}$".format(self.__money))
+        return self.__money
 
     def transfer_to(self, account, amount):
-        if self.currency == account.currency and self.money - amount >= 0:
-            account.money += amount
-            self.money -= amount
-            self.history_list.append("Transfer to {} for {}{}".format(account.name, amount, account.currency))
-            account.history_list.append("Transfer from {} for {}{}".format(self.name, amount, account.currency))
+        if self.__currency == account.__currency and self.__money - amount >= 0:
+            account.__money += amount
+            self.__money -= amount
+            self.__add_to_history("Transfer to {} for {}{}".format(account.__name, amount, account.__currency))
+            account.__add_to_history("Transfer from {} for {}{}".format(self.__name, amount, account.__currency))
             return True
         else:
             raise ValueError
 
     def history(self):
-        return self.history_list
+        return self.__history
 
 
 if __name__ == '__main__':
