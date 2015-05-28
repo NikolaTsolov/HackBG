@@ -1,0 +1,24 @@
+{
+ "Panda('Koleto', 'k.dimitrov@abv.bg', 'male')": [
+  "Panda('Nikola', 'n.tsolov@abv.bg', 'male')"
+ ],
+ "Panda('Lidiq', 'l.levashka@abv.bg', 'female')": [
+  "Panda('Nikola', 'n.tsolov@abv.bg', 'male')"
+ ],
+ "Panda('Nikola', 'n.tsolov@abv.bg', 'male')": [
+  "Panda('Koleto', 'k.dimitrov@abv.bg', 'male')",
+  "Panda('Lidiq', 'l.levashka@abv.bg', 'female')",
+  "Panda('Stivi', 's.strahilov@abv.bg', 'male')"
+ ],
+ "Panda('Stivi', 's.strahilov@abv.bg', 'male')": [
+  "Panda('Viktor', 'v.georgiev@abv.bg', 'male')",
+  "Panda('Nikola', 'n.tsolov@abv.bg', 'male')"
+ ],
+ "Panda('Viktor', 'v.georgiev@abv.bg', 'male')": [
+  "Panda('Stivi', 's.strahilov@abv.bg', 'male')",
+  "Panda('Bard', 'bard@pandamail.com', 'male')"
+ ],
+ "Panda('Bard', 'bard@pandamail.com', 'male')": [
+  "Panda('Viktor', 'v.georgiev@abv.bg', 'male')"
+ ]
+}

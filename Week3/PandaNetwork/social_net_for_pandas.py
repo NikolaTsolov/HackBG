@@ -1,10 +1,14 @@
 import re
+import json
 
 
 class WrongEmail(Exception):
     pass
 
 class PandaAlreadyThere(Exception):
+    pass
+
+class PandaAlreadyFriends(Exception):
     pass
 
 class Panda:
@@ -14,146 +18,159 @@ class Panda:
         return regex
 
     def __init__(self, name, email, gender):
-        self._name = name
-        self._gender = gender
+        self.__name = name
+        self.__gender = gender
         if self.check_email(email):
-            self._email = email
+            self.__email = email
         else:
             raise WrongEmail
 
 
     def name(self):
-        return self._name
+        return self.__name
 
     def email(self):
-        return self._email
+        return self.__email
+
+    def gender(self):
+        return self.__gender
 
     def isMale(self):
-        return self._gender == "male"
+        return self.__gender == "male"
 
     def isFemale(self):
-        return self._gender == "female"
+        return self.__gender == "female"
 
     def __str__(self):
-        string = "I am {}, I am {} and my email is {}".format(self._name, self._gender, self._email)
-        return string
+        return "I am {}, I am {} and my email is {}".format(self.__name, self.__gender, self.__email)
 
     def __eq__(self, other):
-        equal_names = self._name == other._name
-        equal_emails = self._email == other._email
-        equal_genders = self._gender == other._gender
+        equal_names = self.__name == other.__name
+        equal_emails = self.__email == other.__email
+        equal_genders = self.__gender == other.__gender
         return equal_names and equal_emails and equal_genders
 
+    def __repr__(self):
+        return "Panda('{}', '{}', '{}')".format(self.__name,self.__email, self.__gender)
+
     def __hash__(self):
-        return hash(self._email)
+        return hash(self.__str__())
 
 class PandaSocialNetwork:
     def __init__(self):
-        self._pandas = {}
+        self.pandas = {}
 
     def add_panda(self, panda):
-        if panda in self._pandas.keys():
+        if panda in self.pandas:
             raise PandaAlreadyThere
-        self._pandas[panda] = []
+        self.pandas[panda] = []
 
     def has_panda(self, panda):
-        if panda in self._pandas.keys():
+        if panda in self.pandas:
             return True
         return False
 
-    def make_friends(self, friend1, friend2):
-        if friend1 not in self._pandas.keys():
-            self.add_panda(friend1)
-        if friend2 not in self._pandas.keys():
-            self.add_panda(friend2)
+    def make_friends(self, panda1, panda2):
+        if not self.has_panda(panda1):
+            self.add_panda(panda1)
+        if not self.has_panda(panda2):
+            self.add_panda(panda2)
 
-        self._pandas[friend1].append(friend2)
-        self._pandas[friend2].append(friend1)
+        if panda1 not in self.pandas[panda2]:
+            self.pandas[panda1].append(panda2)
+            self.pandas[panda2].append(panda1)
+        else:
+            raise PandaAlreadyFriends
+
+    def friends_of(self, panda):
+        if self.has_panda(panda):
+            return self.pandas[panda]
+        else:
+            return False
 
     def are_friends(self, panda1, panda2):
-        return self.bfs(self._pandas)
+        if self.has_panda(panda1) and self.has_panda(panda2):
+            if panda1 in self.pandas[panda2]:
+                return True
+        else:
+            return False
+
+    def conection_level(self, panda1, panda2):
+        if self.has_panda(panda1) and self.has_panda(panda2):
+            table = self.bfs(panda1)
+            if panda2 in table:
+                return table[panda2]
+            else:
+                return -1
+        else:
+            return False
+
+    def are_connected(self, panda1, panda2):
+        if self.has_panda(panda1) and self.has_panda(panda2):
+            if self.conection_level(panda1, panda2) > 0:
+                return True
+        else:
+            return False
+
+    def how_many_gender_in_network(self, level, panda1, gender):
+        count = 0
+        if self.has_panda(panda1):
+            table = self.bfs(panda1)
+            for panda in table:
+                if table[panda] > 0 and table[panda] <= level and panda.gender() == gender:
+                    count += 1
+            return count
+        else:
+            return False
+
+    def __repr__(self):
+        for_save = {}
+        for panda in self.pandas:
+            friends = [repr(panda_friend) for panda_friend in self.pandas[panda]]
+            for_save[repr(panda)] = friends
+
+        return json.dumps(for_save, indent=True)
+
+    def save(self, filename):
+        with open(filename, "w") as f:
+            f.write(self.__repr__())
+
+    @staticmethod
+    def load(filename):
+        network = PandaSocialNetwork()
+        with open(filename, "r") as f:
+            contents = f.read()
+            json_network = json.loads(contents)
+            for panda in json_network:
+                for friend in json_network[panda]:
+                    panda1 = eval(panda)
+                    panda2 = eval(friend)
+                    if not network.are_friends(panda1, panda2):
+                        network.make_friends(panda1, panda2)
+        return network
 
 
-    def bfs(graph):
+
+    def bfs(self, start):
         visited = set()
         queue = []
-        path_to = {}
-        queue.append(start)
+        panda_level = {}
+        queue.append((start, 0))
         visited.add(start)
-        path_to[start] = None
-        found = False
-        path_length = 0
 
         while len(queue) != 0:
-            current_node = queue.pop(0)
-            if current_node == end:
-                found = True
-                break
-            for neighbour in graph[current_node]:
+            current_data = queue.pop(0)
+            current_node = current_data[0]
+            current_level = current_data[1]
+            panda_level[current_node] = current_level
+            for neighbour in self.pandas[current_node]:
                 if neighbour not in visited:
-                    path_to[neighbour] = current_node
                     visited.add(neighbour)
-                    queue.append(neighbour)
-        if found:
-            while path_to[end] is not None:
-                path_length += 1
-                end = path_to[end]
-#       print(json.dumps(path_to, sort_keys=True, indent=4))
-        return found
+                    queue.append((neighbour, current_level + 1))
+
+        return panda_level
 
 
-
-'''
-graph = {
-    "1": ["2", "3", "5", "10"],
-    "2": ["4", "1"],
-    "3": ["1", "6"],
-    "4": ["2", "5", "6"],
-    "5": ["4", "1"],
-    "6": ["3", "4", "7"],
-    "7": ["6", "8"],
-    "8": ["7", "9"],
-    "9": ["8", "10"],
-    "10": ["9", "1"],
-    "11": ["12"],
-    "12": ["11"]
-}
-
-def bfs(graph, start, end):
-    visited = set()
-    queue = []
-    #path to[x] = y
-    #if we fgo to x trough y
-    path_to = {}
-    queue.append(start)
-    visited.add(start)
-    while len(queue) != 0:
-        current_node = queue.pop(0)
-        if current_node == end:
-            found = True
-            break
-
-        for neighbour in graph:
-            if neighbour not in visited:
-                path_to[neighbour] = current_node
-                visited.add(neighbour)
-                queue.append(neighbour)
-    if found:
-        while path_to[end] is not None:
-            path_length += 1
-            end = path_to[end]
-        path_length
-    return path_to
-'''
-
-def main():
-    network = PandaSocialNetwork()
-    ivo = Panda("Ivo", "ivo@pandamail.com", "male")
-    rado = Panda("Rado", "rado@pandamail.com", "male")
-    tony = Panda("Tony", "tony@pandamail.com", "female")
-
-    for panda in [ivo, rado, tony]:
-        network.add_panda(panda)
 
 
 if __name__ == '__main__':
